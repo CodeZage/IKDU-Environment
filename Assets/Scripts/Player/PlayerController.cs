@@ -9,7 +9,6 @@ namespace Player
     public class PlayerController : MonoBehaviour
     {
         [SerializeField] [Range(0.0f, 10.0f)] private float movementSpeed = 6.0f;
-        [SerializeField] private float stickToGroundForce = 10;
         [SerializeField] [Range(0.0f, 20.0f)] private float jumpStrength = 10.0f;
         [SerializeField] [Range(0.0f, 5.0f)] private float gravityMultiplier = 2.0f;
         [SerializeField] [Range(0.0f, 5.0f)] private float interactDistance = 2.0f;
@@ -27,6 +26,7 @@ namespace Player
         private Interactable targetInteractable;
         private Text targetUseHintText;
         private Image textBackground;
+        private float stickToGroundForce = 10;
 
         private bool IsDead { get; set; }
         private Vector3 SpawnPoint { get; set; }
@@ -41,16 +41,16 @@ namespace Player
             textBackground = textRenderer.GetComponent<Image>();
             playerInputMaster = new InputMaster();
 
-            playerInputMaster.OnFoot.Interact.performed += _ => Interact();
-            playerInputMaster.OnFoot.Jump.performed += _ => Jump();
+            playerInputMaster.OnFoot.Interact.performed += ctx => Interact();
+            playerInputMaster.OnFoot.Jump.performed += ctx => Jump();
 
             SpawnPoint = transform.position;
         }
 
         private void Start()
         {
-            playerInputMaster.Enable();
-            
+            playerInputMaster.OnFoot.Enable();
+
             if (lockCursor)
             {
                 Cursor.lockState = CursorLockMode.Locked;
@@ -81,11 +81,6 @@ namespace Player
         private void OnDisable()
         {
             playerInputMaster.Disable();
-        }
-
-        private void SkipScene()
-        {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
         }
 
         private IEnumerator Respawn()
