@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using Interaction;
 using UnityEngine;
@@ -8,43 +9,56 @@ namespace Player
 {
     public class PlayerController : MonoBehaviour
     {
+        [Header("Movement")]
         [SerializeField] [Range(0.0f, 10.0f)] private float movementSpeed = 6.0f;
         [SerializeField] [Range(0.0f, 20.0f)] private float jumpStrength = 10.0f;
         [SerializeField] [Range(0.0f, 5.0f)] private float gravityMultiplier = 2.0f;
-        [SerializeField] [Range(0.0f, 5.0f)] private float interactDistance = 2.0f;
-        [SerializeField] private bool lockCursor = true;
-        [SerializeField] private CanvasRenderer textRenderer;
-
-        private new Camera camera;
-        private float cameraPitch;
         private CharacterController characterController;
         private Vector3 currentDirection = Vector3.zero;
         private bool isJumping;
-        private float mouseSensitivity;
+        private float stickToGroundForce = 10;
         private InputMaster playerInputMaster;
+
+        [Header("Interaction")]
+        [SerializeField] [Range(0.0f, 5.0f)] private float interactDistance = 2.0f;
         private Transform playerPickupContainer;
         private Interactable targetInteractable;
         private Text targetUseHintText;
         private Image textBackground;
-        private float stickToGroundForce = 10;
+
+        [Header("Camera")]
+        [SerializeField] [Range(0.0f, 1.0f)] private float mouseSensitivity = 0.2f;
+        [SerializeField] private bool lockCursor = true;
+        [SerializeField] private CanvasRenderer textRenderer;
+        private Camera playerCamera;
+        private float cameraPitch;
+
+        [Header("Headbob")]
+        [SerializeField] private bool headBobEnabled = true;
+        [SerializeField] private float bobAmplitude = 0.07f;
+        [SerializeField] private float bobFrequency = 12f;
+        private float transitionSpeed = 10.0f;
+        private Vector3 restPosition;
+        private float timer = Mathf.PI / 2;
 
         private bool IsDead { get; set; }
         private Vector3 SpawnPoint { get; set; }
 
         private void Awake()
         {
-            mouseSensitivity = 0.2f;
             characterController = GetComponent<CharacterController>();
-            camera = GetComponentInChildren<Camera>();
-            playerPickupContainer = camera.transform.GetChild(1);
-            targetUseHintText = camera.GetComponentInChildren<Canvas>().GetComponentInChildren<Text>();
+            playerCamera = GetComponentInChildren<Camera>();
+            playerPickupContainer = playerCamera.transform.GetChild(1);
+            textRenderer = playerCamera.GetComponentInChildren<Canvas>().transform.GetChild(1).GetComponent<CanvasRenderer>();
             textBackground = textRenderer.GetComponent<Image>();
+            targetUseHintText = textRenderer.GetComponentInChildren<Text>();
             playerInputMaster = new InputMaster();
 
             playerInputMaster.OnFoot.Interact.performed += ctx => Interact();
             playerInputMaster.OnFoot.Jump.performed += ctx => Jump();
 
             SpawnPoint = transform.position;
+            restPosition = playerCamera.transform.localPosition;
         }
 
         private void Start()
@@ -69,7 +83,10 @@ namespace Player
             {
                 UpdateMouseLook();
                 UpdateTarget();
-                characterController.Move(UpdateMovement() * Time.deltaTime);
+
+                Vector3 movement = UpdateMovement(); //Cache value to avoid calling update movement more than once per frame
+                characterController.Move(movement * Time.deltaTime);
+                if (headBobEnabled) UpdateHeadBob(movement);
             }
         }
 
@@ -97,15 +114,15 @@ namespace Player
             cameraPitch -= mouseDelta.y * mouseSensitivity;
             cameraPitch = Mathf.Clamp(cameraPitch, -90.0f, 90.0f);
 
-            camera.transform.localEulerAngles = Vector3.right * cameraPitch;
+            playerCamera.transform.localEulerAngles = Vector3.right * cameraPitch;
             transform.Rotate(Vector3.up * (mouseDelta.x * mouseSensitivity));
         }
 
         private void UpdateTarget()
         {
             if (Physics.Raycast(
-                camera.ScreenToWorldPoint(new Vector3(Screen.width / 2f, Screen.height / 2f, camera.nearClipPlane)),
-                camera.transform.forward, out var hit, interactDistance))
+                playerCamera.ScreenToWorldPoint(new Vector3(Screen.width / 2f, Screen.height / 2f, playerCamera.nearClipPlane)),
+                playerCamera.transform.forward, out var hit, interactDistance))
             {
                 if (hit.transform.GetComponent<Interactable>())
                 {
@@ -178,6 +195,30 @@ namespace Player
             }
 
             return currentDirection;
+        }
+
+        private void UpdateHeadBob(Vector3 move)
+        {
+            if (!characterController.isGrounded) return;
+
+            if (Mathf.Abs(move.x) > 0.1f || Mathf.Abs(move.z) > 0.1f)
+            {
+                timer += bobFrequency * Time.deltaTime;
+
+                playerCamera.transform.localPosition = new Vector3(
+                    Mathf.Cos(timer / 2) * bobAmplitude,
+                    restPosition.y + Mathf.Sin(timer) * bobAmplitude,
+                    playerCamera.transform.localPosition.z
+                );
+            }
+            else
+            {
+                playerCamera.transform.localPosition = new Vector3(
+                    Mathf.Lerp(playerCamera.transform.localPosition.x, restPosition.x, transitionSpeed * Time.deltaTime),
+                    Mathf.Lerp(playerCamera.transform.localPosition.y, restPosition.y, transitionSpeed * Time.deltaTime),
+                    restPosition.z
+                );
+            }
         }
 
         private void Jump()

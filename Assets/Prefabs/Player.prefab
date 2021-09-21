@@ -325,12 +325,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   movementSpeed: 6
-  stickToGroundForce: 10
   jumpStrength: 10
   gravityMultiplier: 2
   interactDistance: 2
+  mouseSensitivity: 0.2
   lockCursor: 1
   textRenderer: {fileID: 3826978449679272964}
+  headBobEnabled: 1
+  bobAmplitude: 0.05
+  bobFrequency: 12
 --- !u!1 &2532173320235740774
 GameObject:
   m_ObjectHideFlags: 0
@@ -503,7 +506,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: 6994282e2e785ee489ee8157751fbe6f, type: 3}
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
     m_FontSize: 22
     m_FontStyle: 0
     m_BestFit: 0
