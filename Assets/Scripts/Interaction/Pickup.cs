@@ -12,7 +12,7 @@ namespace Interaction
 
         protected override void Start()
         {
-            UseInfo = "Pick Up";
+            if (interactInfo == "") interactInfo = "Pick Up";
             Rigidbody = gameObject.AddComponent<Rigidbody>();
             Rigidbody.isKinematic = true;
             Rigidbody.useGravity = false;

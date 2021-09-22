@@ -5,20 +5,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Utilities;
-using Object = UnityEngine.Object;
 
-public class InputMaster : IInputActionCollection, IDisposable
+public class @InputMaster : IInputActionCollection, IDisposable
 {
-    // OnFoot
-    private readonly InputActionMap m_OnFoot;
-    private readonly InputAction m_OnFoot_Camera;
-    private readonly InputAction m_OnFoot_Interact;
-    private readonly InputAction m_OnFoot_Jump;
-    private readonly InputAction m_OnFoot_Move;
-    private int m_KeyboardandMouseSchemeIndex = -1;
-    private IOnFootActions m_OnFootActionsCallbackInterface;
-
-    public InputMaster()
+    public InputActionAsset asset { get; }
+    public @InputMaster()
     {
         asset = InputActionAsset.FromJson(@"{
     ""name"": ""InputMaster"",
@@ -133,7 +124,7 @@ public class InputMaster : IInputActionCollection, IDisposable
                     ""path"": ""<Mouse>/leftButton"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
+                    ""groups"": ""Keyboard and Mouse"",
                     ""action"": ""Interact"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -144,7 +135,7 @@ public class InputMaster : IInputActionCollection, IDisposable
                     ""path"": ""<Keyboard>/e"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
+                    ""groups"": ""Keyboard and Mouse"",
                     ""action"": ""Interact"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -183,29 +174,16 @@ public class InputMaster : IInputActionCollection, IDisposable
     ]
 }");
         // OnFoot
-        m_OnFoot = asset.FindActionMap("OnFoot", true);
-        m_OnFoot_Move = m_OnFoot.FindAction("Move", true);
-        m_OnFoot_Jump = m_OnFoot.FindAction("Jump", true);
-        m_OnFoot_Interact = m_OnFoot.FindAction("Interact", true);
-        m_OnFoot_Camera = m_OnFoot.FindAction("Camera", true);
-    }
-
-    public InputActionAsset asset { get; }
-    public OnFootActions OnFoot => new OnFootActions(this);
-
-    public InputControlScheme KeyboardandMouseScheme
-    {
-        get
-        {
-            if (m_KeyboardandMouseSchemeIndex == -1)
-                m_KeyboardandMouseSchemeIndex = asset.FindControlSchemeIndex("Keyboard and Mouse");
-            return asset.controlSchemes[m_KeyboardandMouseSchemeIndex];
-        }
+        m_OnFoot = asset.FindActionMap("OnFoot", throwIfNotFound: true);
+        m_OnFoot_Move = m_OnFoot.FindAction("Move", throwIfNotFound: true);
+        m_OnFoot_Jump = m_OnFoot.FindAction("Jump", throwIfNotFound: true);
+        m_OnFoot_Interact = m_OnFoot.FindAction("Interact", throwIfNotFound: true);
+        m_OnFoot_Camera = m_OnFoot.FindAction("Camera", throwIfNotFound: true);
     }
 
     public void Dispose()
     {
-        Object.Destroy(asset);
+        UnityEngine.Object.Destroy(asset);
     }
 
     public InputBinding? bindingMask
@@ -247,79 +225,71 @@ public class InputMaster : IInputActionCollection, IDisposable
         asset.Disable();
     }
 
+    // OnFoot
+    private readonly InputActionMap m_OnFoot;
+    private IOnFootActions m_OnFootActionsCallbackInterface;
+    private readonly InputAction m_OnFoot_Move;
+    private readonly InputAction m_OnFoot_Jump;
+    private readonly InputAction m_OnFoot_Interact;
+    private readonly InputAction m_OnFoot_Camera;
     public struct OnFootActions
     {
-        private readonly InputMaster m_Wrapper;
-
-        public OnFootActions(InputMaster wrapper)
-        {
-            m_Wrapper = wrapper;
-        }
-
-        public InputAction Move => m_Wrapper.m_OnFoot_Move;
-        public InputAction Jump => m_Wrapper.m_OnFoot_Jump;
-        public InputAction Interact => m_Wrapper.m_OnFoot_Interact;
-        public InputAction Camera => m_Wrapper.m_OnFoot_Camera;
-
-        public InputActionMap Get()
-        {
-            return m_Wrapper.m_OnFoot;
-        }
-
-        public void Enable()
-        {
-            Get().Enable();
-        }
-
-        public void Disable()
-        {
-            Get().Disable();
-        }
-
+        private @InputMaster m_Wrapper;
+        public OnFootActions(@InputMaster wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Move => m_Wrapper.m_OnFoot_Move;
+        public InputAction @Jump => m_Wrapper.m_OnFoot_Jump;
+        public InputAction @Interact => m_Wrapper.m_OnFoot_Interact;
+        public InputAction @Camera => m_Wrapper.m_OnFoot_Camera;
+        public InputActionMap Get() { return m_Wrapper.m_OnFoot; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
         public bool enabled => Get().enabled;
-
-        public static implicit operator InputActionMap(OnFootActions set)
-        {
-            return set.Get();
-        }
-
+        public static implicit operator InputActionMap(OnFootActions set) { return set.Get(); }
         public void SetCallbacks(IOnFootActions instance)
         {
             if (m_Wrapper.m_OnFootActionsCallbackInterface != null)
             {
-                Move.started -= m_Wrapper.m_OnFootActionsCallbackInterface.OnMove;
-                Move.performed -= m_Wrapper.m_OnFootActionsCallbackInterface.OnMove;
-                Move.canceled -= m_Wrapper.m_OnFootActionsCallbackInterface.OnMove;
-                Jump.started -= m_Wrapper.m_OnFootActionsCallbackInterface.OnJump;
-                Jump.performed -= m_Wrapper.m_OnFootActionsCallbackInterface.OnJump;
-                Jump.canceled -= m_Wrapper.m_OnFootActionsCallbackInterface.OnJump;
-                Interact.started -= m_Wrapper.m_OnFootActionsCallbackInterface.OnInteract;
-                Interact.performed -= m_Wrapper.m_OnFootActionsCallbackInterface.OnInteract;
-                Interact.canceled -= m_Wrapper.m_OnFootActionsCallbackInterface.OnInteract;
-                Camera.started -= m_Wrapper.m_OnFootActionsCallbackInterface.OnCamera;
-                Camera.performed -= m_Wrapper.m_OnFootActionsCallbackInterface.OnCamera;
-                Camera.canceled -= m_Wrapper.m_OnFootActionsCallbackInterface.OnCamera;
+                @Move.started -= m_Wrapper.m_OnFootActionsCallbackInterface.OnMove;
+                @Move.performed -= m_Wrapper.m_OnFootActionsCallbackInterface.OnMove;
+                @Move.canceled -= m_Wrapper.m_OnFootActionsCallbackInterface.OnMove;
+                @Jump.started -= m_Wrapper.m_OnFootActionsCallbackInterface.OnJump;
+                @Jump.performed -= m_Wrapper.m_OnFootActionsCallbackInterface.OnJump;
+                @Jump.canceled -= m_Wrapper.m_OnFootActionsCallbackInterface.OnJump;
+                @Interact.started -= m_Wrapper.m_OnFootActionsCallbackInterface.OnInteract;
+                @Interact.performed -= m_Wrapper.m_OnFootActionsCallbackInterface.OnInteract;
+                @Interact.canceled -= m_Wrapper.m_OnFootActionsCallbackInterface.OnInteract;
+                @Camera.started -= m_Wrapper.m_OnFootActionsCallbackInterface.OnCamera;
+                @Camera.performed -= m_Wrapper.m_OnFootActionsCallbackInterface.OnCamera;
+                @Camera.canceled -= m_Wrapper.m_OnFootActionsCallbackInterface.OnCamera;
             }
-
             m_Wrapper.m_OnFootActionsCallbackInterface = instance;
             if (instance != null)
             {
-                Move.started += instance.OnMove;
-                Move.performed += instance.OnMove;
-                Move.canceled += instance.OnMove;
-                Jump.started += instance.OnJump;
-                Jump.performed += instance.OnJump;
-                Jump.canceled += instance.OnJump;
-                Interact.started += instance.OnInteract;
-                Interact.performed += instance.OnInteract;
-                Interact.canceled += instance.OnInteract;
-                Camera.started += instance.OnCamera;
-                Camera.performed += instance.OnCamera;
-                Camera.canceled += instance.OnCamera;
+                @Move.started += instance.OnMove;
+                @Move.performed += instance.OnMove;
+                @Move.canceled += instance.OnMove;
+                @Jump.started += instance.OnJump;
+                @Jump.performed += instance.OnJump;
+                @Jump.canceled += instance.OnJump;
+                @Interact.started += instance.OnInteract;
+                @Interact.performed += instance.OnInteract;
+                @Interact.canceled += instance.OnInteract;
+                @Camera.started += instance.OnCamera;
+                @Camera.performed += instance.OnCamera;
+                @Camera.canceled += instance.OnCamera;
             }
         }
     }
-
+    public OnFootActions @OnFoot => new OnFootActions(this);
+    private int m_KeyboardandMouseSchemeIndex = -1;
+    public InputControlScheme KeyboardandMouseScheme
+    {
+        get
+        {
+            if (m_KeyboardandMouseSchemeIndex == -1) m_KeyboardandMouseSchemeIndex = asset.FindControlSchemeIndex("Keyboard and Mouse");
+            return asset.controlSchemes[m_KeyboardandMouseSchemeIndex];
+        }
+    }
     public interface IOnFootActions
     {
         void OnMove(InputAction.CallbackContext context);

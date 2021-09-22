@@ -20,7 +20,7 @@ namespace Player
         private InputMaster playerInputMaster;
 
         [Header("Interaction")]
-        [SerializeField] [Range(0.0f, 5.0f)] private float interactDistance = 2.0f;
+        [SerializeField] [Range(0.0f, 5.0f)] private float interactDistance = 3.0f;
         private Transform playerPickupContainer;
         private Interactable targetInteractable;
         private Text targetUseHintText;
@@ -37,9 +37,9 @@ namespace Player
         [SerializeField] private bool headBobEnabled = true;
         [SerializeField] private float bobAmplitude = 0.07f;
         [SerializeField] private float bobFrequency = 12f;
-        private float transitionSpeed = 10.0f;
+        private float transitionSpeed = 20.0f;
         private Vector3 restPosition;
-        private float timer = Mathf.PI / 2;
+        private float timer;
 
         private bool IsDead { get; set; }
         private Vector3 SpawnPoint { get; set; }
@@ -154,7 +154,7 @@ namespace Player
             if (targetInteractable)
             {
                 textRenderer.gameObject.SetActive(true);
-                targetUseHintText.text = targetInteractable.UseInfo;
+                targetUseHintText.text = targetInteractable.interactInfo;
                 textBackground.rectTransform.sizeDelta = new Vector2(targetUseHintText.text.Length * 13, 30);
             }
             else
@@ -206,8 +206,8 @@ namespace Player
                 timer += bobFrequency * Time.deltaTime;
 
                 playerCamera.transform.localPosition = new Vector3(
-                    Mathf.Cos(timer / 2) * bobAmplitude,
-                    restPosition.y + Mathf.Sin(timer) * bobAmplitude,
+                    Mathf.Lerp(playerCamera.transform.localPosition.x, Mathf.Cos(timer / 2) * bobAmplitude, transitionSpeed),
+                    Mathf.Lerp(playerCamera.transform.localPosition.y, restPosition.y + Mathf.Sin(timer) * bobAmplitude, transitionSpeed),
                     playerCamera.transform.localPosition.z
                 );
             }

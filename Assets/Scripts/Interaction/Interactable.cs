@@ -5,8 +5,8 @@ namespace Interaction
 {
     public abstract class Interactable : MonoBehaviour
     {
+        public string interactInfo;
         private Outline outline;
-        public string UseInfo { get; protected set; }
 
         protected virtual void Awake()
         {
@@ -19,7 +19,7 @@ namespace Interaction
 
         protected virtual void Start()
         {
-            UseInfo = "Interact";
+            if (interactInfo == "") interactInfo = "Interact";
         }
 
         public abstract void Interact();
