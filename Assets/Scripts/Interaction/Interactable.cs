@@ -6,15 +6,19 @@ namespace Interaction
     public abstract class Interactable : MonoBehaviour
     {
         public string interactInfo;
-        private Outline outline;
+
+        [HideInInspector]
+        public bool isInteractable;
+        private Outline _outline;
 
         protected virtual void Awake()
         {
-            outline = gameObject.AddComponent<Outline>();
-            outline.OutlineColor = Color.white;
-            outline.OutlineWidth = 3;
-            outline.OutlineMode = Outline.Mode.OutlineVisible;
-            outline.enabled = false;
+            _outline = gameObject.AddComponent<Outline>();
+            _outline.OutlineColor = Color.white;
+            _outline.OutlineWidth = 3;
+            _outline.OutlineMode = Outline.Mode.OutlineVisible;
+            _outline.enabled = false;
+            isInteractable = true;
         }
 
         protected virtual void Start()
@@ -27,12 +31,12 @@ namespace Interaction
 
         public virtual void Target()
         {
-            outline.enabled = true;
+            _outline.enabled = true;
         }
 
         public virtual void RemoveTarget()
         {
-            outline.enabled = false;
+            _outline.enabled = false;
         }
     }
 }

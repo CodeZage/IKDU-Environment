@@ -1,30 +1,29 @@
 using System.Collections;
-using System.Collections.Generic;
 using Interaction;
 using UnityEngine;
 
 public class ToggleDayNight : Interactable
 {
-    private Light sun;
-    private Quaternion initialRotation;
+    private Light _sun;
 
     protected override void Start()
     {
         if (interactInfo == "") interactInfo = "Change Time of Day";
 
-        sun = RenderSettings.sun;
-        initialRotation = sun.transform.rotation;
+        _sun = RenderSettings.sun;
     }
 
     public override void Interact()
     {
-        StartCoroutine(LerpRotation(sun.transform, Quaternion.Inverse(sun.transform.rotation), 4f));
+        StartCoroutine(LerpRotation(_sun.transform, Quaternion.Inverse(_sun.transform.rotation), 4f));
     }
 
     protected IEnumerator LerpRotation(Transform target, Quaternion targetRotation, float duration)
     {
+        isInteractable = false;
+
         float time = 0;
-        Quaternion startRotation = target.rotation;
+        var startRotation = target.rotation;
 
         while (time < duration)
         {
@@ -32,6 +31,7 @@ public class ToggleDayNight : Interactable
             time += Time.deltaTime;
             yield return null;
         }
-    }
 
+        isInteractable = true;
+    }
 }
