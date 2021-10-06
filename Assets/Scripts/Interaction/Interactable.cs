@@ -1,4 +1,5 @@
-using QuickOutline;
+using System;
+using Assets.Scripts.QuickOutline;
 using UnityEngine;
 
 namespace Interaction
@@ -27,7 +28,6 @@ namespace Interaction
         }
 
         public abstract void Interact();
-
 
         public virtual void Target()
         {

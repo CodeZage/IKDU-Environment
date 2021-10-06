@@ -12,7 +12,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace QuickOutline
+namespace Assets.Scripts.QuickOutline
 {
     [DisallowMultipleComponent]
     public class Outline : MonoBehaviour
@@ -28,22 +28,22 @@ namespace QuickOutline
 
         private static readonly HashSet<Mesh> RegisteredMeshes = new HashSet<Mesh>();
 
-        [SerializeField] private Mode outlineMode;
+        [SerializeField] private Mode _outlineMode;
 
-        [SerializeField] private Color outlineColor = Color.white;
+        [SerializeField] private Color _outlineColor = Color.white;
 
-        [SerializeField] [Range(0f, 10f)] private float outlineWidth = 2f;
+        [SerializeField] [Range(0f, 10f)] private float _outlineWidth = 2f;
 
         [Header("Optional")]
         [SerializeField]
         [Tooltip(
             "Precompute enabled: Per-vertex calculations are performed in the editor and serialized with the object. "
             + "Precompute disabled: Per-vertex calculations are performed at runtime in Awake(). This may cause a pause for large meshes.")]
-        private bool precomputeOutline;
+        private bool _precomputeOutline;
 
-        [SerializeField] [HideInInspector] private List<Mesh> bakeKeys = new List<Mesh>();
+        [SerializeField] [HideInInspector] private List<Mesh> _bakeKeys = new List<Mesh>();
 
-        [SerializeField] [HideInInspector] private List<ListVector3> bakeValues = new List<ListVector3>();
+        [SerializeField] [HideInInspector] private List<ListVector3> _bakeValues = new List<ListVector3>();
 
         private bool _needsUpdate;
         private Material _outlineFillMaterial;
@@ -53,30 +53,30 @@ namespace QuickOutline
 
         public Mode OutlineMode
         {
-            get => outlineMode;
+            get => _outlineMode;
             set
             {
-                outlineMode = value;
+                _outlineMode = value;
                 _needsUpdate = true;
             }
         }
 
         public Color OutlineColor
         {
-            get => outlineColor;
+            get => _outlineColor;
             set
             {
-                outlineColor = value;
+                _outlineColor = value;
                 _needsUpdate = true;
             }
         }
 
         public float OutlineWidth
         {
-            get => outlineWidth;
+            get => _outlineWidth;
             set
             {
-                outlineWidth = value;
+                _outlineWidth = value;
                 _needsUpdate = true;
             }
         }
@@ -151,14 +151,14 @@ namespace QuickOutline
             _needsUpdate = true;
 
             // Clear cache when baking is disabled or corrupted
-            if (!precomputeOutline && bakeKeys.Count != 0 || bakeKeys.Count != bakeValues.Count)
+            if (!_precomputeOutline && _bakeKeys.Count != 0 || _bakeKeys.Count != _bakeValues.Count)
             {
-                bakeKeys.Clear();
-                bakeValues.Clear();
+                _bakeKeys.Clear();
+                _bakeValues.Clear();
             }
 
             // Generate smooth normals when baking is enabled
-            if (precomputeOutline && bakeKeys.Count == 0) Bake();
+            if (_precomputeOutline && _bakeKeys.Count == 0) Bake();
         }
 
         private void Bake()
@@ -174,8 +174,8 @@ namespace QuickOutline
                 // Serialize smooth normals
                 var smoothNormals = SmoothNormals(meshFilter.sharedMesh);
 
-                bakeKeys.Add(meshFilter.sharedMesh);
-                bakeValues.Add(new ListVector3 { data = smoothNormals });
+                _bakeKeys.Add(meshFilter.sharedMesh);
+                _bakeValues.Add(new ListVector3 { Data = smoothNormals });
             }
         }
 
@@ -188,8 +188,8 @@ namespace QuickOutline
                 if (!RegisteredMeshes.Add(meshFilter.sharedMesh)) continue;
 
                 // Retrieve or generate smooth normals
-                var index = bakeKeys.IndexOf(meshFilter.sharedMesh);
-                var smoothNormals = index >= 0 ? bakeValues[index].data : SmoothNormals(meshFilter.sharedMesh);
+                var index = _bakeKeys.IndexOf(meshFilter.sharedMesh);
+                var smoothNormals = index >= 0 ? _bakeValues[index].Data : SmoothNormals(meshFilter.sharedMesh);
 
                 // Store smooth normals in UV3
                 meshFilter.sharedMesh.SetUVs(3, smoothNormals);
@@ -233,32 +233,32 @@ namespace QuickOutline
         private void UpdateMaterialProperties()
         {
             // Apply properties according to mode
-            _outlineFillMaterial.SetColor("_OutlineColor", outlineColor);
+            _outlineFillMaterial.SetColor("_OutlineColor", _outlineColor);
 
-            switch (outlineMode)
+            switch (_outlineMode)
             {
                 case Mode.OutlineAll:
                     _outlineMaskMaterial.SetFloat("_ZTest", (float)CompareFunction.Always);
                     _outlineFillMaterial.SetFloat("_ZTest", (float)CompareFunction.Always);
-                    _outlineFillMaterial.SetFloat("_OutlineWidth", outlineWidth);
+                    _outlineFillMaterial.SetFloat("_OutlineWidth", _outlineWidth);
                     break;
 
                 case Mode.OutlineVisible:
                     _outlineMaskMaterial.SetFloat("_ZTest", (float)CompareFunction.Always);
                     _outlineFillMaterial.SetFloat("_ZTest", (float)CompareFunction.LessEqual);
-                    _outlineFillMaterial.SetFloat("_OutlineWidth", outlineWidth);
+                    _outlineFillMaterial.SetFloat("_OutlineWidth", _outlineWidth);
                     break;
 
                 case Mode.OutlineHidden:
                     _outlineMaskMaterial.SetFloat("_ZTest", (float)CompareFunction.Always);
                     _outlineFillMaterial.SetFloat("_ZTest", (float)CompareFunction.Greater);
-                    _outlineFillMaterial.SetFloat("_OutlineWidth", outlineWidth);
+                    _outlineFillMaterial.SetFloat("_OutlineWidth", _outlineWidth);
                     break;
 
                 case Mode.OutlineAndSilhouette:
                     _outlineMaskMaterial.SetFloat("_ZTest", (float)CompareFunction.LessEqual);
                     _outlineFillMaterial.SetFloat("_ZTest", (float)CompareFunction.Always);
-                    _outlineFillMaterial.SetFloat("_OutlineWidth", outlineWidth);
+                    _outlineFillMaterial.SetFloat("_OutlineWidth", _outlineWidth);
                     break;
 
                 case Mode.SilhouetteOnly:
@@ -272,7 +272,7 @@ namespace QuickOutline
         [Serializable]
         private class ListVector3
         {
-            public List<Vector3> data;
+            public List<Vector3> Data;
         }
     }
 }

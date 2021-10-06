@@ -1,4 +1,5 @@
 using System.Collections;
+using Assets.Scripts.Interaction;
 using Player;
 using UnityEngine;
 

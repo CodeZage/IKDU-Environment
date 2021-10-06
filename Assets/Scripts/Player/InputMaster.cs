@@ -8,11 +8,10 @@ using UnityEngine.InputSystem.Utilities;
 
 public class @InputMaster : IInputActionCollection, IDisposable
 {
-    public InputActionAsset Asset { get; }
-
+    public InputActionAsset asset { get; }
     public @InputMaster()
     {
-        Asset = InputActionAsset.FromJson(@"{
+        asset = InputActionAsset.FromJson(@"{
     ""name"": ""InputMaster"",
     ""maps"": [
         {
@@ -48,6 +47,14 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""type"": ""PassThrough"",
                     ""id"": ""c47ccd5d-9190-4d08-b541-ce6c39fabd01"",
                     ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """"
+                },
+                {
+                    ""name"": ""AltInteract"",
+                    ""type"": ""Button"",
+                    ""id"": ""e2a531ec-55a0-4644-b529-f5e151fdd181"",
+                    ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
                 }
@@ -151,6 +158,17 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""action"": ""Camera"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""146bcd73-dd38-4b93-8d9c-cf413912ef4d"",
+                    ""path"": ""<Keyboard>/f"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard and Mouse"",
+                    ""action"": ""AltInteract"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -175,40 +193,41 @@ public class @InputMaster : IInputActionCollection, IDisposable
     ]
 }");
         // OnFoot
-        _mOnFoot = Asset.FindActionMap("OnFoot", true);
-        _mOnFootMove = _mOnFoot.FindAction("Move", true);
-        _mOnFootJump = _mOnFoot.FindAction("Jump", true);
-        _mOnFootInteract = _mOnFoot.FindAction("Interact", true);
-        _mOnFootCamera = _mOnFoot.FindAction("Camera", true);
+        m_OnFoot = asset.FindActionMap("OnFoot", throwIfNotFound: true);
+        m_OnFoot_Move = m_OnFoot.FindAction("Move", throwIfNotFound: true);
+        m_OnFoot_Jump = m_OnFoot.FindAction("Jump", throwIfNotFound: true);
+        m_OnFoot_Interact = m_OnFoot.FindAction("Interact", throwIfNotFound: true);
+        m_OnFoot_Camera = m_OnFoot.FindAction("Camera", throwIfNotFound: true);
+        m_OnFoot_AltInteract = m_OnFoot.FindAction("AltInteract", throwIfNotFound: true);
     }
 
     public void Dispose()
     {
-        UnityEngine.Object.Destroy(Asset);
+        UnityEngine.Object.Destroy(asset);
     }
 
     public InputBinding? bindingMask
     {
-        get => Asset.bindingMask;
-        set => Asset.bindingMask = value;
+        get => asset.bindingMask;
+        set => asset.bindingMask = value;
     }
 
     public ReadOnlyArray<InputDevice>? devices
     {
-        get => Asset.devices;
-        set => Asset.devices = value;
+        get => asset.devices;
+        set => asset.devices = value;
     }
 
-    public ReadOnlyArray<InputControlScheme> controlSchemes => Asset.controlSchemes;
+    public ReadOnlyArray<InputControlScheme> controlSchemes => asset.controlSchemes;
 
     public bool Contains(InputAction action)
     {
-        return Asset.Contains(action);
+        return asset.Contains(action);
     }
 
     public IEnumerator<InputAction> GetEnumerator()
     {
-        return Asset.GetEnumerator();
+        return asset.GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator()
@@ -218,77 +237,57 @@ public class @InputMaster : IInputActionCollection, IDisposable
 
     public void Enable()
     {
-        Asset.Enable();
+        asset.Enable();
     }
 
     public void Disable()
     {
-        Asset.Disable();
+        asset.Disable();
     }
 
     // OnFoot
-    private readonly InputActionMap _mOnFoot;
-    private IOnFootActions _mOnFootActionsCallbackInterface;
-    private readonly InputAction _mOnFootMove;
-    private readonly InputAction _mOnFootJump;
-    private readonly InputAction _mOnFootInteract;
-    private readonly InputAction _mOnFootCamera;
-
+    private readonly InputActionMap m_OnFoot;
+    private IOnFootActions m_OnFootActionsCallbackInterface;
+    private readonly InputAction m_OnFoot_Move;
+    private readonly InputAction m_OnFoot_Jump;
+    private readonly InputAction m_OnFoot_Interact;
+    private readonly InputAction m_OnFoot_Camera;
+    private readonly InputAction m_OnFoot_AltInteract;
     public struct OnFootActions
     {
-        private @InputMaster _mWrapper;
-
-        public OnFootActions(@InputMaster wrapper)
-        {
-            _mWrapper = wrapper;
-        }
-
-        public InputAction @Move => _mWrapper._mOnFootMove;
-        public InputAction @Jump => _mWrapper._mOnFootJump;
-        public InputAction @Interact => _mWrapper._mOnFootInteract;
-        public InputAction @Camera => _mWrapper._mOnFootCamera;
-
-        public InputActionMap Get()
-        {
-            return _mWrapper._mOnFoot;
-        }
-
-        public void Enable()
-        {
-            Get().Enable();
-        }
-
-        public void Disable()
-        {
-            Get().Disable();
-        }
-
-        public bool Enabled => Get().enabled;
-
-        public static implicit operator InputActionMap(OnFootActions set)
-        {
-            return set.Get();
-        }
-
+        private @InputMaster m_Wrapper;
+        public OnFootActions(@InputMaster wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Move => m_Wrapper.m_OnFoot_Move;
+        public InputAction @Jump => m_Wrapper.m_OnFoot_Jump;
+        public InputAction @Interact => m_Wrapper.m_OnFoot_Interact;
+        public InputAction @Camera => m_Wrapper.m_OnFoot_Camera;
+        public InputAction @AltInteract => m_Wrapper.m_OnFoot_AltInteract;
+        public InputActionMap Get() { return m_Wrapper.m_OnFoot; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(OnFootActions set) { return set.Get(); }
         public void SetCallbacks(IOnFootActions instance)
         {
-            if (_mWrapper._mOnFootActionsCallbackInterface != null)
+            if (m_Wrapper.m_OnFootActionsCallbackInterface != null)
             {
-                @Move.started -= _mWrapper._mOnFootActionsCallbackInterface.OnMove;
-                @Move.performed -= _mWrapper._mOnFootActionsCallbackInterface.OnMove;
-                @Move.canceled -= _mWrapper._mOnFootActionsCallbackInterface.OnMove;
-                @Jump.started -= _mWrapper._mOnFootActionsCallbackInterface.OnJump;
-                @Jump.performed -= _mWrapper._mOnFootActionsCallbackInterface.OnJump;
-                @Jump.canceled -= _mWrapper._mOnFootActionsCallbackInterface.OnJump;
-                @Interact.started -= _mWrapper._mOnFootActionsCallbackInterface.OnInteract;
-                @Interact.performed -= _mWrapper._mOnFootActionsCallbackInterface.OnInteract;
-                @Interact.canceled -= _mWrapper._mOnFootActionsCallbackInterface.OnInteract;
-                @Camera.started -= _mWrapper._mOnFootActionsCallbackInterface.OnCamera;
-                @Camera.performed -= _mWrapper._mOnFootActionsCallbackInterface.OnCamera;
-                @Camera.canceled -= _mWrapper._mOnFootActionsCallbackInterface.OnCamera;
+                @Move.started -= m_Wrapper.m_OnFootActionsCallbackInterface.OnMove;
+                @Move.performed -= m_Wrapper.m_OnFootActionsCallbackInterface.OnMove;
+                @Move.canceled -= m_Wrapper.m_OnFootActionsCallbackInterface.OnMove;
+                @Jump.started -= m_Wrapper.m_OnFootActionsCallbackInterface.OnJump;
+                @Jump.performed -= m_Wrapper.m_OnFootActionsCallbackInterface.OnJump;
+                @Jump.canceled -= m_Wrapper.m_OnFootActionsCallbackInterface.OnJump;
+                @Interact.started -= m_Wrapper.m_OnFootActionsCallbackInterface.OnInteract;
+                @Interact.performed -= m_Wrapper.m_OnFootActionsCallbackInterface.OnInteract;
+                @Interact.canceled -= m_Wrapper.m_OnFootActionsCallbackInterface.OnInteract;
+                @Camera.started -= m_Wrapper.m_OnFootActionsCallbackInterface.OnCamera;
+                @Camera.performed -= m_Wrapper.m_OnFootActionsCallbackInterface.OnCamera;
+                @Camera.canceled -= m_Wrapper.m_OnFootActionsCallbackInterface.OnCamera;
+                @AltInteract.started -= m_Wrapper.m_OnFootActionsCallbackInterface.OnAltInteract;
+                @AltInteract.performed -= m_Wrapper.m_OnFootActionsCallbackInterface.OnAltInteract;
+                @AltInteract.canceled -= m_Wrapper.m_OnFootActionsCallbackInterface.OnAltInteract;
             }
-
-            _mWrapper._mOnFootActionsCallbackInterface = instance;
+            m_Wrapper.m_OnFootActionsCallbackInterface = instance;
             if (instance != null)
             {
                 @Move.started += instance.OnMove;
@@ -303,28 +302,28 @@ public class @InputMaster : IInputActionCollection, IDisposable
                 @Camera.started += instance.OnCamera;
                 @Camera.performed += instance.OnCamera;
                 @Camera.canceled += instance.OnCamera;
+                @AltInteract.started += instance.OnAltInteract;
+                @AltInteract.performed += instance.OnAltInteract;
+                @AltInteract.canceled += instance.OnAltInteract;
             }
         }
     }
-
     public OnFootActions @OnFoot => new OnFootActions(this);
-    private int _mKeyboardandMouseSchemeIndex = -1;
-
+    private int m_KeyboardandMouseSchemeIndex = -1;
     public InputControlScheme KeyboardandMouseScheme
     {
         get
         {
-            if (_mKeyboardandMouseSchemeIndex == -1)
-                _mKeyboardandMouseSchemeIndex = Asset.FindControlSchemeIndex("Keyboard and Mouse");
-            return Asset.controlSchemes[_mKeyboardandMouseSchemeIndex];
+            if (m_KeyboardandMouseSchemeIndex == -1) m_KeyboardandMouseSchemeIndex = asset.FindControlSchemeIndex("Keyboard and Mouse");
+            return asset.controlSchemes[m_KeyboardandMouseSchemeIndex];
         }
     }
-
     public interface IOnFootActions
     {
         void OnMove(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
         void OnInteract(InputAction.CallbackContext context);
         void OnCamera(InputAction.CallbackContext context);
+        void OnAltInteract(InputAction.CallbackContext context);
     }
 }

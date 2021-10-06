@@ -40,7 +40,7 @@ namespace Player
         private Camera _playerCamera;
         private float _cameraPitch;
 
-        [Header("Headbob")] [SerializeField] private bool headBobEnabled = true;
+        [Header("Head-bob")] [SerializeField] private bool headBobEnabled = true;
         [SerializeField] private float bobAmplitude = 0.07f;
         [SerializeField] private float bobFrequency = 12f;
         private float _transitionSpeed = 20.0f;
@@ -62,6 +62,7 @@ namespace Player
             _playerInputMaster = new InputMaster();
 
             _playerInputMaster.OnFoot.Interact.performed += ctx => Interact();
+            _playerInputMaster.OnFoot.AltInteract.performed += ctx => AltInteract();
             _playerInputMaster.OnFoot.Jump.performed += ctx => Jump();
 
             SpawnPoint = transform.position;
@@ -255,6 +256,11 @@ namespace Player
                 _playerPickupContainer.GetComponentInChildren<Pickup>().Drop();
 
             else if (_targetInteractable != null) _targetInteractable.Interact();
+        }
+
+        private void AltInteract()
+        {
+            (_targetInteractable as IAltInteractable)?.AltInteract();
         }
     }
 }
