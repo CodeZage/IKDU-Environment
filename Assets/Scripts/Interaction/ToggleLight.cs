@@ -5,8 +5,10 @@ namespace Interaction
 {
     public class ToggleLight : Pickup, IAltInteractable
     {
+        public Material lightMaterial;
+
+        private Material _material;
         private Light _light;
-        private Material _material, _lightMaterial;
         private MeshRenderer _meshRenderer;
 
         protected override void Start()
@@ -14,15 +16,16 @@ namespace Interaction
             base.Start();
             _light = GetComponent<Light>();
             _meshRenderer = GetComponent<MeshRenderer>();
-            _lightMaterial = _meshRenderer.material;
-            _material = Resources.Load<Material>("Materials/BlueLightMaterial");
+            _material = _meshRenderer.material;
+            if (!lightMaterial) lightMaterial = Resources.Load<Material>("Materials/BlueLightMaterial");
+            _light.color = lightMaterial.color;
         }
 
         public void AltInteract()
         {
             _light.enabled = !_light.enabled;
 
-            _meshRenderer.material = _meshRenderer.material == _material ? _lightMaterial : _material;
+            _meshRenderer.material = _meshRenderer.material == _material ? lightMaterial : _material;
         }
     }
 }
