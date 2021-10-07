@@ -49,6 +49,14 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""expectedControlType"": ""Vector2"",
                     ""processors"": """",
                     ""interactions"": """"
+                },
+                {
+                    ""name"": ""AltInteract"",
+                    ""type"": ""Button"",
+                    ""id"": ""e2a531ec-55a0-4644-b529-f5e151fdd181"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
                 }
             ],
             ""bindings"": [
@@ -150,6 +158,17 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""action"": ""Camera"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""146bcd73-dd38-4b93-8d9c-cf413912ef4d"",
+                    ""path"": ""<Keyboard>/f"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard and Mouse"",
+                    ""action"": ""AltInteract"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -179,6 +198,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
         m_OnFoot_Jump = m_OnFoot.FindAction("Jump", throwIfNotFound: true);
         m_OnFoot_Interact = m_OnFoot.FindAction("Interact", throwIfNotFound: true);
         m_OnFoot_Camera = m_OnFoot.FindAction("Camera", throwIfNotFound: true);
+        m_OnFoot_AltInteract = m_OnFoot.FindAction("AltInteract", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -232,6 +252,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
     private readonly InputAction m_OnFoot_Jump;
     private readonly InputAction m_OnFoot_Interact;
     private readonly InputAction m_OnFoot_Camera;
+    private readonly InputAction m_OnFoot_AltInteract;
     public struct OnFootActions
     {
         private @InputMaster m_Wrapper;
@@ -240,6 +261,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
         public InputAction @Jump => m_Wrapper.m_OnFoot_Jump;
         public InputAction @Interact => m_Wrapper.m_OnFoot_Interact;
         public InputAction @Camera => m_Wrapper.m_OnFoot_Camera;
+        public InputAction @AltInteract => m_Wrapper.m_OnFoot_AltInteract;
         public InputActionMap Get() { return m_Wrapper.m_OnFoot; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -261,6 +283,9 @@ public class @InputMaster : IInputActionCollection, IDisposable
                 @Camera.started -= m_Wrapper.m_OnFootActionsCallbackInterface.OnCamera;
                 @Camera.performed -= m_Wrapper.m_OnFootActionsCallbackInterface.OnCamera;
                 @Camera.canceled -= m_Wrapper.m_OnFootActionsCallbackInterface.OnCamera;
+                @AltInteract.started -= m_Wrapper.m_OnFootActionsCallbackInterface.OnAltInteract;
+                @AltInteract.performed -= m_Wrapper.m_OnFootActionsCallbackInterface.OnAltInteract;
+                @AltInteract.canceled -= m_Wrapper.m_OnFootActionsCallbackInterface.OnAltInteract;
             }
             m_Wrapper.m_OnFootActionsCallbackInterface = instance;
             if (instance != null)
@@ -277,6 +302,9 @@ public class @InputMaster : IInputActionCollection, IDisposable
                 @Camera.started += instance.OnCamera;
                 @Camera.performed += instance.OnCamera;
                 @Camera.canceled += instance.OnCamera;
+                @AltInteract.started += instance.OnAltInteract;
+                @AltInteract.performed += instance.OnAltInteract;
+                @AltInteract.canceled += instance.OnAltInteract;
             }
         }
     }
@@ -296,5 +324,6 @@ public class @InputMaster : IInputActionCollection, IDisposable
         void OnJump(InputAction.CallbackContext context);
         void OnInteract(InputAction.CallbackContext context);
         void OnCamera(InputAction.CallbackContext context);
+        void OnAltInteract(InputAction.CallbackContext context);
     }
 }

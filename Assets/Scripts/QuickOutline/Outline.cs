@@ -12,7 +12,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace QuickOutline
+namespace Assets.Scripts.QuickOutline
 {
     [DisallowMultipleComponent]
     public class Outline : MonoBehaviour
@@ -28,83 +28,83 @@ namespace QuickOutline
 
         private static readonly HashSet<Mesh> RegisteredMeshes = new HashSet<Mesh>();
 
-        [SerializeField] private Mode outlineMode;
+        [SerializeField] private Mode _outlineMode;
 
-        [SerializeField] private Color outlineColor = Color.white;
+        [SerializeField] private Color _outlineColor = Color.white;
 
-        [SerializeField] [Range(0f, 10f)] private float outlineWidth = 2f;
+        [SerializeField] [Range(0f, 10f)] private float _outlineWidth = 2f;
 
         [Header("Optional")]
         [SerializeField]
         [Tooltip(
             "Precompute enabled: Per-vertex calculations are performed in the editor and serialized with the object. "
             + "Precompute disabled: Per-vertex calculations are performed at runtime in Awake(). This may cause a pause for large meshes.")]
-        private bool precomputeOutline;
+        private bool _precomputeOutline;
 
-        [SerializeField] [HideInInspector] private List<Mesh> bakeKeys = new List<Mesh>();
+        [SerializeField] [HideInInspector] private List<Mesh> _bakeKeys = new List<Mesh>();
 
-        [SerializeField] [HideInInspector] private List<ListVector3> bakeValues = new List<ListVector3>();
+        [SerializeField] [HideInInspector] private List<ListVector3> _bakeValues = new List<ListVector3>();
 
-        private bool needsUpdate;
-        private Material outlineFillMaterial;
-        private Material outlineMaskMaterial;
+        private bool _needsUpdate;
+        private Material _outlineFillMaterial;
+        private Material _outlineMaskMaterial;
 
-        private Renderer[] renderers;
+        private Renderer[] _renderers;
 
         public Mode OutlineMode
         {
-            get => outlineMode;
+            get => _outlineMode;
             set
             {
-                outlineMode = value;
-                needsUpdate = true;
+                _outlineMode = value;
+                _needsUpdate = true;
             }
         }
 
         public Color OutlineColor
         {
-            get => outlineColor;
+            get => _outlineColor;
             set
             {
-                outlineColor = value;
-                needsUpdate = true;
+                _outlineColor = value;
+                _needsUpdate = true;
             }
         }
 
         public float OutlineWidth
         {
-            get => outlineWidth;
+            get => _outlineWidth;
             set
             {
-                outlineWidth = value;
-                needsUpdate = true;
+                _outlineWidth = value;
+                _needsUpdate = true;
             }
         }
 
         private void Awake()
         {
             // Cache renderers
-            renderers = GetComponentsInChildren<Renderer>();
+            _renderers = GetComponentsInChildren<Renderer>();
 
             // Instantiate outline materials
-            outlineMaskMaterial = Instantiate(Resources.Load<Material>(@"Materials/OutlineMask"));
-            outlineFillMaterial = Instantiate(Resources.Load<Material>(@"Materials/OutlineFill"));
+            _outlineMaskMaterial = Instantiate(Resources.Load<Material>(@"Materials/OutlineMask"));
+            _outlineFillMaterial = Instantiate(Resources.Load<Material>(@"Materials/OutlineFill"));
 
-            outlineMaskMaterial.name = "OutlineMask (Instance)";
-            outlineFillMaterial.name = "OutlineFill (Instance)";
+            _outlineMaskMaterial.name = "OutlineMask (Instance)";
+            _outlineFillMaterial.name = "OutlineFill (Instance)";
 
             // Retrieve or generate smooth normals
             LoadSmoothNormals();
 
             // Apply material properties immediately
-            needsUpdate = true;
+            _needsUpdate = true;
         }
 
         private void Update()
         {
-            if (needsUpdate)
+            if (_needsUpdate)
             {
-                needsUpdate = false;
+                _needsUpdate = false;
 
                 UpdateMaterialProperties();
             }
@@ -112,13 +112,13 @@ namespace QuickOutline
 
         private void OnEnable()
         {
-            foreach (var renderer in renderers)
+            foreach (var renderer in _renderers)
             {
                 // Append outline shaders
                 var materials = renderer.sharedMaterials.ToList();
 
-                materials.Add(outlineMaskMaterial);
-                materials.Add(outlineFillMaterial);
+                materials.Add(_outlineMaskMaterial);
+                materials.Add(_outlineFillMaterial);
 
                 renderer.materials = materials.ToArray();
             }
@@ -126,13 +126,13 @@ namespace QuickOutline
 
         private void OnDisable()
         {
-            foreach (var renderer in renderers)
+            foreach (var renderer in _renderers)
             {
                 // Remove outline shaders
                 var materials = renderer.sharedMaterials.ToList();
 
-                materials.Remove(outlineMaskMaterial);
-                materials.Remove(outlineFillMaterial);
+                materials.Remove(_outlineMaskMaterial);
+                materials.Remove(_outlineFillMaterial);
 
                 renderer.materials = materials.ToArray();
             }
@@ -141,24 +141,24 @@ namespace QuickOutline
         private void OnDestroy()
         {
             // Destroy material instances
-            Destroy(outlineMaskMaterial);
-            Destroy(outlineFillMaterial);
+            Destroy(_outlineMaskMaterial);
+            Destroy(_outlineFillMaterial);
         }
 
         private void OnValidate()
         {
             // Update material properties
-            needsUpdate = true;
+            _needsUpdate = true;
 
             // Clear cache when baking is disabled or corrupted
-            if (!precomputeOutline && bakeKeys.Count != 0 || bakeKeys.Count != bakeValues.Count)
+            if (!_precomputeOutline && _bakeKeys.Count != 0 || _bakeKeys.Count != _bakeValues.Count)
             {
-                bakeKeys.Clear();
-                bakeValues.Clear();
+                _bakeKeys.Clear();
+                _bakeValues.Clear();
             }
 
             // Generate smooth normals when baking is enabled
-            if (precomputeOutline && bakeKeys.Count == 0) Bake();
+            if (_precomputeOutline && _bakeKeys.Count == 0) Bake();
         }
 
         private void Bake()
@@ -174,8 +174,8 @@ namespace QuickOutline
                 // Serialize smooth normals
                 var smoothNormals = SmoothNormals(meshFilter.sharedMesh);
 
-                bakeKeys.Add(meshFilter.sharedMesh);
-                bakeValues.Add(new ListVector3 { data = smoothNormals });
+                _bakeKeys.Add(meshFilter.sharedMesh);
+                _bakeValues.Add(new ListVector3 { Data = smoothNormals });
             }
         }
 
@@ -188,8 +188,8 @@ namespace QuickOutline
                 if (!RegisteredMeshes.Add(meshFilter.sharedMesh)) continue;
 
                 // Retrieve or generate smooth normals
-                var index = bakeKeys.IndexOf(meshFilter.sharedMesh);
-                var smoothNormals = index >= 0 ? bakeValues[index].data : SmoothNormals(meshFilter.sharedMesh);
+                var index = _bakeKeys.IndexOf(meshFilter.sharedMesh);
+                var smoothNormals = index >= 0 ? _bakeValues[index].Data : SmoothNormals(meshFilter.sharedMesh);
 
                 // Store smooth normals in UV3
                 meshFilter.sharedMesh.SetUVs(3, smoothNormals);
@@ -233,38 +233,38 @@ namespace QuickOutline
         private void UpdateMaterialProperties()
         {
             // Apply properties according to mode
-            outlineFillMaterial.SetColor("_OutlineColor", outlineColor);
+            _outlineFillMaterial.SetColor("_OutlineColor", _outlineColor);
 
-            switch (outlineMode)
+            switch (_outlineMode)
             {
                 case Mode.OutlineAll:
-                    outlineMaskMaterial.SetFloat("_ZTest", (float)CompareFunction.Always);
-                    outlineFillMaterial.SetFloat("_ZTest", (float)CompareFunction.Always);
-                    outlineFillMaterial.SetFloat("_OutlineWidth", outlineWidth);
+                    _outlineMaskMaterial.SetFloat("_ZTest", (float)CompareFunction.Always);
+                    _outlineFillMaterial.SetFloat("_ZTest", (float)CompareFunction.Always);
+                    _outlineFillMaterial.SetFloat("_OutlineWidth", _outlineWidth);
                     break;
 
                 case Mode.OutlineVisible:
-                    outlineMaskMaterial.SetFloat("_ZTest", (float)CompareFunction.Always);
-                    outlineFillMaterial.SetFloat("_ZTest", (float)CompareFunction.LessEqual);
-                    outlineFillMaterial.SetFloat("_OutlineWidth", outlineWidth);
+                    _outlineMaskMaterial.SetFloat("_ZTest", (float)CompareFunction.Always);
+                    _outlineFillMaterial.SetFloat("_ZTest", (float)CompareFunction.LessEqual);
+                    _outlineFillMaterial.SetFloat("_OutlineWidth", _outlineWidth);
                     break;
 
                 case Mode.OutlineHidden:
-                    outlineMaskMaterial.SetFloat("_ZTest", (float)CompareFunction.Always);
-                    outlineFillMaterial.SetFloat("_ZTest", (float)CompareFunction.Greater);
-                    outlineFillMaterial.SetFloat("_OutlineWidth", outlineWidth);
+                    _outlineMaskMaterial.SetFloat("_ZTest", (float)CompareFunction.Always);
+                    _outlineFillMaterial.SetFloat("_ZTest", (float)CompareFunction.Greater);
+                    _outlineFillMaterial.SetFloat("_OutlineWidth", _outlineWidth);
                     break;
 
                 case Mode.OutlineAndSilhouette:
-                    outlineMaskMaterial.SetFloat("_ZTest", (float)CompareFunction.LessEqual);
-                    outlineFillMaterial.SetFloat("_ZTest", (float)CompareFunction.Always);
-                    outlineFillMaterial.SetFloat("_OutlineWidth", outlineWidth);
+                    _outlineMaskMaterial.SetFloat("_ZTest", (float)CompareFunction.LessEqual);
+                    _outlineFillMaterial.SetFloat("_ZTest", (float)CompareFunction.Always);
+                    _outlineFillMaterial.SetFloat("_OutlineWidth", _outlineWidth);
                     break;
 
                 case Mode.SilhouetteOnly:
-                    outlineMaskMaterial.SetFloat("_ZTest", (float)CompareFunction.LessEqual);
-                    outlineFillMaterial.SetFloat("_ZTest", (float)CompareFunction.Greater);
-                    outlineFillMaterial.SetFloat("_OutlineWidth", 0);
+                    _outlineMaskMaterial.SetFloat("_ZTest", (float)CompareFunction.LessEqual);
+                    _outlineFillMaterial.SetFloat("_ZTest", (float)CompareFunction.Greater);
+                    _outlineFillMaterial.SetFloat("_OutlineWidth", 0);
                     break;
             }
         }
@@ -272,7 +272,7 @@ namespace QuickOutline
         [Serializable]
         private class ListVector3
         {
-            public List<Vector3> data;
+            public List<Vector3> Data;
         }
     }
 }
