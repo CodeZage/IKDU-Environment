@@ -140,7 +140,7 @@ namespace Player
                     if (!newTarget.isInteractable)
                     {
                         textRenderer.gameObject.SetActive(false);
-                        _targetInteractable?.RemoveTarget();
+                        if (_targetInteractable != null) _targetInteractable.RemoveTarget();
                         _targetInteractable = null;
                         return;
                     }
