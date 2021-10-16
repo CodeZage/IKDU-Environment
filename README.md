@@ -2,6 +2,8 @@
 
 This is a Unity Project which is intended to act as a quickstart option for quickly setting up an environment. The goal is to make it easier for new students to get started and have some tools so they can start developing.
 
+You can also check out
+
 ## Installing Git
 
 Git might already be installed on your system. If you want to check you can open a new terminal or command prompt session and type git. If git is installed, you should see this: 
@@ -31,6 +33,12 @@ git clone https://github.com/CodeZage/IKDU-Environment.git
 ```
 
 The project should clone itself into the folder you are currently in. Once cloned you can now open the project in a text editor, IDE or add it to Unity Hub depending on the project type. 
+
+## Forking Project
+
+You also have the option of forking the repository and creating your own version of the environment inside your own Git repository. To do this simply click the fork button in the top right of the repository page.
+
+![Fork Guide](https://user-images.githubusercontent.com/55112918/137599078-b58de176-61e3-479c-aafd-07fb74db42f0.png)
 
 ## Committing Changes
 
