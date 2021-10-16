@@ -38,7 +38,7 @@ The project should clone itself into the folder you are currently in. Once clone
 
 You also have the option of forking the repository and creating your own version of the environment inside your own Git repository. To do this simply click the fork button in the top right of the repository page.
 
-![Fork Guide (2)](https://user-images.githubusercontent.com/55112918/137599095-e01c561c-a5d9-495f-a73d-9c5465602c3f.png)
+![Fork Guide (4)](https://user-images.githubusercontent.com/55112918/137599163-4d427768-783c-41ee-a515-2f3b7101284f.png)
 
 ## Committing Changes
 
