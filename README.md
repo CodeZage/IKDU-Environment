@@ -1,4 +1,4 @@
-# IKDU Environment 🤷‍♀️
+# IKDU Environment 🤖
 
 This is a Unity Project which is intended to act as a quickstart option for quickly setting up an environment. The goal is to make it easier for new students to get started and have some tools so they can start developing.
 
