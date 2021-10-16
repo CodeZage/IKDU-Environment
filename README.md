@@ -12,7 +12,7 @@ Git might already be installed on your system. If you want to check you can open
 
 If git is not installed, please go to the following website, and follow the installation instructions for your system's OS:
 
-[Git](https://git-scm.com/)
+[Download Git](https://git-scm.com/)
 
 Once installed you can now use git to manage your files.
 
