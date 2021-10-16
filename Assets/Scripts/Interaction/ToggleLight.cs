@@ -19,6 +19,7 @@ namespace Interaction
             _material = _meshRenderer.material;
             if (!lightMaterial) lightMaterial = Resources.Load<Material>("Materials/BlueLightMaterial");
             _light.color = lightMaterial.color;
+            _light.enabled = false;
         }
 
         public void AltInteract()
